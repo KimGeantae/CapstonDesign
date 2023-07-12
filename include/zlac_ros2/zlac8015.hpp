@@ -12,12 +12,13 @@
 #include <unistd.h>
 #endif
 
-#include "serial/serial.h"
+#include <libserial/SerialPort.h>
 #include "zlac_ros2/crc_check.h"
 
 class ZLAC
 {
-protected:
+private:
+    LibSerial::SerialPort serial_conn_;
     std::chrono::time_point<std::chrono::steady_clock> start, end;
 
     uint8_t hex_cmd[8] = {0};
@@ -36,22 +37,24 @@ protected:
     uint8_t SET_DECC_TIME[2] = {0x20, 0X38};
 
     void calculate_crc();
-    uint8_t read_hex(uint8_t num_bytes);
-    void print_hex_cmd();
-    void print_rec_hex();
+    // uint8_t read_hex(uint8_t num_bytes);
+    // void print_hex_cmd();
+    // void print_rec_hex();
 
 public:
-    serial::Serial _serial;
-    void beginn(std::string port, int baudrate, uint8_t _ID = 0x00);
-    uint8_t set_vel_mode();
-    uint8_t set_acc_time(uint16_t acc_time);
-    uint8_t set_decc_time(uint16_t decc_time);
-    uint8_t enable();
-    uint8_t disable();
-    uint8_t set_rpm(int16_t rpm);
-    int16_t get_rpm();
+    // ZLAC();
+    // ~ZLAC();
 
-    void sleep(unsigned long milliseconds);
+    void beginn(const std::string &port, uint8_t ID = 0x00);
+    // uint8_t set_vel_mode();
+    // uint8_t set_acc_time(uint16_t acc_time);
+    // uint8_t set_decc_time(uint16_t decc_time);
+    // uint8_t enable();
+    // uint8_t disable();
+    // uint8_t set_rpm(int16_t rpm);
+    // int16_t get_rpm();
+
+    // void sleep(unsigned long milliseconds);
     void say_hello();
 };
 
