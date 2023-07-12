@@ -5,8 +5,15 @@
 int main()
 {
     ZLAC motorL;
+    if (motorL.connected())
+    {
+        printf("already connected, reconnecting fresh.\n");
+        motorL.close();
+    }
+    motorL.beginn("/dev/zlac", 0x01);
+    motorL.set_vel_mode();
 
-    motorL.beginn("/dev/wit", 0x01);
+    motorL.close();
 
     // ZLAC motorR;
     // motorR.beginn("/dev/zlac", 115200, 0x02);

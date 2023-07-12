@@ -1,5 +1,6 @@
 #include "zlac_ros2/zlac8015.hpp"
 
+// ! Can't use constructor with ros2 control
 // ZLAC::~ZLAC()
 // {
 //     std::cout << "CALL DESTRUCTOR" << std::endl;
@@ -11,13 +12,23 @@
 //     printf("Constructor called\n");
 // }
 
-void ZLAC::beginn(const std::string &port, uint8_t _ID)
+void ZLAC::beginn(const std::string &port, uint8_t ID)
 {
-    uint8_t ID = _ID;
+    this->ID = ID;
     serial_conn_.Open(port);
     serial_conn_.SetBaudRate(LibSerial::BaudRate::BAUD_115200);
     // std::cout << "Serial OK" << std::endl;
     // printf("Serial OK\n");
+}
+
+void ZLAC::close()
+{
+    serial_conn_.Close();
+}
+
+bool ZLAC::connected()
+{
+    return serial_conn_.IsOpen();
 }
 
 // uint8_t ZLAC::set_rpm(int16_t rpm)
@@ -91,22 +102,22 @@ void ZLAC::beginn(const std::string &port, uint8_t _ID)
 //     return 0;
 // }
 
-// uint8_t ZLAC::set_vel_mode()
-// {
-//     // memset(hex_cmd, 0, sizeof(hex_cmd));
-//     hex_cmd[0] = ID;
-//     hex_cmd[1] = WRITE;
-//     hex_cmd[2] = OPERATING_MODE[0];
-//     hex_cmd[3] = OPERATING_MODE[1];
+uint8_t ZLAC::set_vel_mode()
+{
+    // memset(hex_cmd, 0, sizeof(hex_cmd));
+    hex_cmd[0] = ID;
+    hex_cmd[1] = WRITE;
+    hex_cmd[2] = OPERATING_MODE[0];
+    hex_cmd[3] = OPERATING_MODE[1];
 
-//     hex_cmd[4] = VEL_MODE[0];
-//     hex_cmd[5] = VEL_MODE[1];
+    hex_cmd[4] = VEL_MODE[0];
+    hex_cmd[5] = VEL_MODE[1];
 
-//     calculate_crc();
-//     _serial.write(hex_cmd, 8);
-//     read_hex(8);
-//     return 0;
-// }
+    calculate_crc();
+    serial_conn_ << hex_cmd;
+    // read_hex(8);
+    return 0;
+}
 
 // uint8_t ZLAC::set_acc_time(uint16_t acc_time)
 // {
@@ -161,25 +172,25 @@ void ZLAC::calculate_crc()
     hex_cmd[7] = (result >> 8) & 0xFF;
 }
 
-// uint8_t ZLAC::read_hex(uint8_t num_bytes)
-// {
-//     std::string line = _serial.read(num_bytes);
+uint8_t ZLAC::read_hex(uint8_t num_bytes)
+{
+    // std::string line = serial_conn_.read(num_bytes);
+    serial_conn_ >> num_bytes;
+    // convert string to hex
+    // for (uint8_t i = 0; i < uint8_t(line.size()); i++)
+    // {
+    //     receive_hex[i] = uint8_t(line[i]);
+    //     // printf("rec %d, %02x\n", i, receive_hex[i]);
+    // }
 
-//     // convert string to hex
-//     for (uint8_t i = 0; i < uint8_t(line.size()); i++)
-//     {
-//         receive_hex[i] = uint8_t(line[i]);
-//         // printf("rec %d, %02x\n", i, receive_hex[i]);
-//     }
-
-//     // crc check of received data
-//     if (crc16(receive_hex, num_bytes) != 0)
-//     {
-//         printf("crc checking error\n");
-//         return 1;
-//     }
-//     return 0;
-// }
+    // // crc check of received data
+    // if (crc16(receive_hex, num_bytes) != 0)
+    // {
+    //     printf("crc checking error\n");
+    //     return 1;
+    // }
+    return 0;
+}
 
 // void ZLAC::print_hex_cmd()
 // {
